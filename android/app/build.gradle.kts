@@ -84,9 +84,6 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
 
-    // Lightweight Embedded HTTP Server for LAN stop command (NanoHTTPD or Ktor)
-    implementation("org.nanohttpd:nanohttpd:2.3.1")
-
     // ZXing for QR Code scanning (Pairing with laptop)
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 

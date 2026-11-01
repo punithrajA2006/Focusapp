@@ -2,6 +2,7 @@ package com.focuslock.ui.screens
 
 import android.annotation.SuppressLint
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
@@ -13,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShieldCheck
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -142,6 +142,19 @@ fun YouTubeStudyScreen(
                         settings.domStorageEnabled = true
                         webChromeClient = WebChromeClient()
                         webViewClient = object : WebViewClient() {
+                            // Study-only navigation: search, watch pages, channels, playlists. No home feed, no Shorts.
+                            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                                val uri = request?.url ?: return true
+                                val host = uri.host ?: return true
+                                val path = uri.path ?: "/"
+                                if (host == "consent.youtube.com") return false
+                                val onYouTube = host == "youtube.com" || host.endsWith(".youtube.com")
+                                val allowedPath = path.startsWith("/results") || path.startsWith("/watch") ||
+                                    path.startsWith("/@") || path.startsWith("/c/") ||
+                                    path.startsWith("/channel/") || path.startsWith("/playlist")
+                                return !(onYouTube && allowedPath && !path.startsWith("/shorts"))
+                            }
+
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 super.onPageFinished(view, url)
                                 // Inject aggressive CSS to strip Shorts, comments, and recommendations

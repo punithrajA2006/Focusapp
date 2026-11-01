@@ -33,7 +33,9 @@ data class SessionConfig(
             "com.google.android.dialer",      // Safety: Pixel/OEM dialer
             "com.samsung.android.dialer",     // Safety: Samsung dialer
             "com.android.server.telecom",     // Safety: Telecom subsystem
-            "com.android.phone"               // Safety: Core phone app
+            "com.android.phone",              // Safety: Core phone app
+            "com.android.incallui",           // Safety: in-call screen
+            "com.samsung.android.incallui"    // Safety: Samsung in-call screen
         )
     }
 }
@@ -51,9 +53,14 @@ data class ActiveSession(
     val lastVerifiedRealtimeMs: Long,
     val accumulatedElapsedBeforeRebootMs: Long = 0L,
     val rebootCount: Int = 0,
+    val bootCount: Int = -1,
     val status: SessionStatus = SessionStatus.ACTIVE,
     val config: SessionConfig = SessionConfig()
 ) : Parcelable {
+
+    /** 8-char code shown on the phone; stop commands from the laptop are bound to it. */
+    val sessionCode: String
+        get() = sessionId.take(8).lowercase()
 
     /**
      * Calculates remaining time in milliseconds using monotonic elapsed time.
@@ -80,4 +87,11 @@ data class SessionRecord(
     val wasCompletedSuccessfully: Boolean,
     val stoppedByLaptop: Boolean,
     val totalFocusedMinutes: Int
+)
+
+/** Lifetime focus stats shown on the home screen. */
+data class FocusStats(
+    val completedSessions: Int = 0,
+    val totalMinutes: Int = 0,
+    val streakDays: Int = 0
 )

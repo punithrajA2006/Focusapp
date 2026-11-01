@@ -1,55 +1,23 @@
-# FocusLock Companion (Fedora Linux)
+# FocusLock companion (Fedora laptop)
 
-Lightweight companion CLI and Flask dashboard for your FocusLock Android study enforcement system.
+Two listeners, started by one command:
 
-## Setup on Fedora 40/41
+| Listener | Address | Purpose |
+|---|---|---|
+| Dashboard | `127.0.0.1:5000` | Stop button, offline token, pairing JSON. Loopback only. |
+| Phone link | `0.0.0.0:5001` | Single signed `POST /poll` endpoint. Nothing else is exposed. |
 
-1. Open terminal and install Python 3 & pip:
-   ```bash
-   sudo dnf install -y python3 python3-pip
-   cd companion
-   pip install -r requirements.txt
-   chmod +x cli.py server.py
-   ```
-
-2. Make `focuslock` available system-wide:
-   ```bash
-   sudo ln -sf $(pwd)/cli.py /usr/local/bin/focuslock
-   ```
-
-## CLI Usage
-
-- **Pair Phone with Laptop (Generates shared HMAC-SHA256 secret)**:
-  ```bash
-  focuslock pair
-  ```
-  *(Displays your shared secret and pairing payload to scan on your phone)*
-
-- **Set Phone IP on your local Wi-Fi**:
-  ```bash
-  focuslock config --ip 192.168.1.105
-  ```
-
-- **Stop Active Session (Cryptographically Signed via Wi-Fi)**:
-  ```bash
-  focuslock stop
-  ```
-  *(Dispatches signed JSON to `http://<phone_ip>:8765/api/stop`. If Wi-Fi is down or phone is offline, automatically prints the one-time offline signed token!)*
-
-- **Generate Offline Stop Token Directly**:
-  ```bash
-  focuslock token
-  ```
-
-- **Check Study Stats & Streaks**:
-  ```bash
-  focuslock status
-  ```
-
-## Web Dashboard
-
-Run the local web dashboard:
 ```bash
-python3 server.py
+pip install -r requirements.txt
+python server.py                  # keep running while you study
+python cli.py pair                # prints the JSON to paste into the phone app (Pair laptop)
+python cli.py stop                # arms a stop; the phone picks it up within ~5 s
+python cli.py cancel              # withdraw an armed stop
+python cli.py token --code a1b2c3d4   # offline fallback; code is shown on the phone
+python cli.py status
 ```
-Open **http://127.0.0.1:5000** in your browser.
+
+How the stop works: the phone sends an HMAC-signed poll every 5 s. If you armed a stop, the reply is a
+signed stop command bound to that session code. The phone re-verifies signature, session, freshness and
+nonce before ending the lock. Allow TCP 5001 in firewalld if needed:
+`sudo firewall-cmd --add-port=5001/tcp` (add `--permanent` to keep it).

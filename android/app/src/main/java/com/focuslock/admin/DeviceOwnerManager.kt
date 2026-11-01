@@ -35,6 +35,10 @@ class DeviceOwnerManager(private val context: Context) {
             dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_SAFE_BOOT)
             // Block Factory Reset
             dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_FACTORY_RESET)
+            // Block force-stop / clear-data of apps, date & time changes, and USB debugging
+            dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_APPS_CONTROL)
+            dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_CONFIG_DATE_TIME)
+            dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_DEBUGGING_FEATURES)
             // Prevent uninstalling FocusLock
             dpm.setUninstallBlocked(adminComponent, context.packageName, true)
             // Configure lock task mode packages
@@ -53,6 +57,9 @@ class DeviceOwnerManager(private val context: Context) {
         try {
             dpm.clearUserRestriction(adminComponent, UserManager.DISALLOW_SAFE_BOOT)
             dpm.clearUserRestriction(adminComponent, UserManager.DISALLOW_FACTORY_RESET)
+            dpm.clearUserRestriction(adminComponent, UserManager.DISALLOW_APPS_CONTROL)
+            dpm.clearUserRestriction(adminComponent, UserManager.DISALLOW_CONFIG_DATE_TIME)
+            dpm.clearUserRestriction(adminComponent, UserManager.DISALLOW_DEBUGGING_FEATURES)
             dpm.setUninstallBlocked(adminComponent, context.packageName, false)
         } catch (e: Exception) {
             e.printStackTrace()

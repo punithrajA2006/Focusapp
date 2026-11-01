@@ -28,6 +28,32 @@ def verify_payload(secret_hex: str, payload: Dict[str, Any], signature: str) -> 
     expected_sig = sign_payload(secret_hex, payload)
     return hmac.compare_digest(expected_sig, signature)
 
+def create_poll_request(secret_hex: str, session_code: str, remaining_s: int = 0) -> Dict[str, Any]:
+    """Phone-side helper (used by tests): signed 'is a stop pending?' request."""
+    payload = {
+        "action": "POLL",
+        "session_id": session_code,
+        "remaining_s": int(remaining_s),
+        "timestamp": int(time.time()),
+        "nonce": secrets.token_hex(16),
+    }
+    return {"payload": payload, "signature": sign_payload(secret_hex, payload)}
+
+def verify_poll_request(secret_hex: str, packet: Dict[str, Any], max_age_seconds: int = 120) -> Tuple[bool, str]:
+    """Laptop-side check of a phone poll: valid HMAC, action POLL, fresh timestamp."""
+    try:
+        payload = packet.get("payload", {})
+        signature = packet.get("signature", "")
+        if payload.get("action") != "POLL":
+            return False, "wrong action"
+        if not verify_payload(secret_hex, payload, signature):
+            return False, "bad signature"
+        if abs(int(time.time()) - int(payload.get("timestamp", 0))) > max_age_seconds:
+            return False, "stale timestamp (phone clock off?)"
+        return True, "ok"
+    except Exception as e:  # malformed input
+        return False, f"malformed: {e}"
+
 def create_stop_command(secret_hex: str, session_id: str) -> Dict[str, Any]:
     """
     Creates a signed stop command packet.

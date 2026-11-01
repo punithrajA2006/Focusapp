@@ -96,3 +96,29 @@ def get_stats(db_path: str = DB_PATH) -> Dict[str, Any]:
         "total_laptop_stops": laptop_stops,
         "recent_sessions": recent
     }
+
+
+# ---- Phone link state (shared by the Flask server and the CLI via SQLite) ----
+def request_stop(ttl_seconds: int = 900, db_path: str = DB_PATH):
+    """Arm a stop. The phone receives it the next time it polls (within ttl)."""
+    set_config("stop_pending_until", str(int(time.time()) + ttl_seconds), db_path)
+
+def clear_stop(db_path: str = DB_PATH):
+    set_config("stop_pending_until", "0", db_path)
+
+def stop_pending(db_path: str = DB_PATH) -> bool:
+    return int(get_config("stop_pending_until", "0", db_path) or 0) > int(time.time())
+
+def save_phone_state(session_code: str, remaining_s: int, db_path: str = DB_PATH):
+    set_config("phone_state", json.dumps({
+        "session_code": session_code, "remaining_s": remaining_s, "seen_at": int(time.time())
+    }), db_path)
+
+def get_phone_state(db_path: str = DB_PATH) -> Dict[str, Any]:
+    raw = get_config("phone_state", "", db_path)
+    try:
+        st = json.loads(raw) if raw else {}
+    except Exception:
+        st = {}
+    st["online"] = bool(st) and (int(time.time()) - st.get("seen_at", 0) <= 20)
+    return st

@@ -18,7 +18,8 @@ object SessionEngine {
      */
     fun shouldBlockPackage(
         activeSession: ActiveSession?,
-        targetPackageName: String
+        targetPackageName: String,
+        extraExempt: Set<String> = emptySet()
     ): Boolean {
         // If no session is active or session has expired, do not block
         if (activeSession == null || activeSession.status != SessionStatus.ACTIVE) {
@@ -27,6 +28,11 @@ object SessionEngine {
 
         // System UI, Keyguard, and Input Methods (keyboards) must remain operational
         if (isSystemInfrastructure(targetPackageName)) {
+            return false
+        }
+
+        // Launchers and other runtime-discovered system surfaces
+        if (extraExempt.contains(targetPackageName)) {
             return false
         }
 

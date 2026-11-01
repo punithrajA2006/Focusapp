@@ -1,8 +1,41 @@
+# Dependencies
 node_modules/
-build/
+.pnp
+.pnp.js
+
+# Production & Build outputs
 dist/
+build/
 coverage/
-.DS_Store
 *.log
+
+# Environment
 .env*
 !.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Android build outputs & local config
+.gradle/
+android/.gradle/
+android/app/build/
+android/local.properties
+*.apk
+*.aab
+
+# Python / Fedora Companion
+__pycache__/
+*.py[cod]
+*$py.class
+*.db
+*.sqlite3
+.pytest_cache/
+venv/
+.venv/
+
+# Large archives
+public/assets/
+*.zip
+.playwright-cli/

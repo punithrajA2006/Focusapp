@@ -19,12 +19,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.focuslock.crypto.HmacSigner
 import com.focuslock.ui.theme.*
 
 @Composable
 fun OfflineStopDialog(
-    secretHex: String,
+    verifyToken: (String) -> Boolean,
     onStopSuccess: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -96,7 +95,7 @@ fun OfflineStopDialog(
                                 errorMessage = "Please enter token"
                                 return@Button
                             }
-                            val verified = HmacSigner.verifyOfflineToken(secretHex, tokenInput)
+                            val verified = verifyToken(tokenInput.trim())
                             if (verified) {
                                 Toast.makeText(context, "Signature verified. Session unlocked.", Toast.LENGTH_SHORT).show()
                                 onStopSuccess()
