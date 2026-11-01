@@ -1,0 +1,6 @@
+{
+  "name": "FocusLock",
+  "description": "Zero-compromise study-enforcement Android app and Linux companion dashboard with cryptographic stop locks and tamper-proof timers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">FocusLock</string>
+    <string name="device_admin_label">FocusLock Security Enforcement</string>
+    <string name="device_admin_description">Enforces study session lockout, prevents uninstallation or force-stop during active sessions.</string>
+    <string name="accessibility_service_label">FocusLock Study Guard</string>
+    <string name="accessibility_service_description">Monitors foreground window transitions to instantly block unwhitelisted applications during study sessions.</string>
+</resources>
